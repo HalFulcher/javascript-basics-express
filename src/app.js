@@ -1,5 +1,11 @@
 const express = require('express');
-const { sayHello, uppercase, lowercase, firstCharacters } = require('./lib/strings');
+const {
+  sayHello,
+  uppercase,
+  lowercase,
+  firstCharacter,
+  firstCharacters,
+} = require('./lib/strings');
 const { add, subtract, multiply, divide, remainder } = require('./lib/numbers');
 const { negate, truthiness, isOdd, startsWith } = require('./lib/booleans');
 const {
@@ -32,12 +38,12 @@ app.get('/strings/lower/:HELLO', (req, res) => {
 
 // returns the first character of the string when there is no query string
 
-app.get('/strings/first-characters/:');
-
-// returns first character of the string when passed a query parameter
-
-app.get('/strings/first-characters/:sd32fg45', (req, res) => {
-  res.json({ result: firstCharacters(req.params.string, req.query.length) });
+app.get('/strings/first-characters/:string', (req, res) => {
+  if (!req.query.length) {
+    res.json({ result: firstCharacter(req.params.string) });
+  } else {
+    res.json({ result: firstCharacters(req.params.string, req.query.length) });
+  }
 });
 
 // NUMBERS
@@ -48,9 +54,11 @@ app.get('/numbers/add/:a/and/:b', (req, res) => {
   const a = parseInt(req.params.a, 10);
   const b = parseInt(req.params.b, 10);
 
-  return Number.isNaN(a) || Number.isNaN(b)
-    ? res.sendStatus(400)
-    : res.status(200).json({ result: add(a, b) });
+  if (Number.isNaN(a) || Number.isNaN(b)) {
+    res.status(400).json({ error: `Parameters must be valid numbers.` });
+  } else {
+    res.status(200).json({ result: add(a, b) });
+  }
 });
 
 // subtracts
@@ -59,7 +67,11 @@ app.get('/numbers/subtract/:a/from/:b', (req, res) => {
   const a = parseInt(req.params.a, 10);
   const b = parseInt(req.params.b, 10);
 
-  res.status(200).json({ result: subtract(b, a) });
+  if (Number.isNaN(a) || Number.isNaN(b)) {
+    res.status(400).json({ error: `Parameters must be valid numbers.` });
+  } else {
+    res.status(200).json({ result: subtract(b, a) });
+  }
 });
 
 // Multiplies
@@ -67,7 +79,14 @@ app.get('/numbers/subtract/:a/from/:b', (req, res) => {
 app.post('/numbers/multiply', (req, res) => {
   const a = parseInt(req.body.a, 10);
   const b = parseInt(req.body.b, 10);
-  res.status(200).send({ result: multiply(a, b) });
+
+  if (!req.body.a || !req.body.b) {
+    res.status(400).json({ error: `Parameters "a" and "b" are required.` });
+  } else if (Number.isNaN(a) || Number.isNaN(b)) {
+    res.status(400).json({ error: `Parameters "a" and "b" must be valid numbers.` });
+  } else {
+    res.status(200).json({ result: multiply(req.body.a, req.body.b) });
+  }
 });
 
 // Divides
@@ -76,7 +95,28 @@ app.post('/numbers/divide', (req, res) => {
   const a = parseInt(req.body.a, 10);
   const b = parseInt(req.body.b, 10);
 
-  res.status(200).json({ result: divide(a, b) });
+  if (
+    // errors if dividing by 0
+    req.body.a &&
+    req.body.b === 0
+  ) {
+    res.status(400).json({ error: 'Unable to divide by 0.' });
+  }
+
+  if (req.body.a === 0 && req.body.b) {
+    res.status(200).json({ result: divide(a, b) });
+  }
+
+  // errors if parameters are missing
+  else if (!req.body.a || !req.body.b) {
+    res.status(400).json({ error: `Parameters "a" and "b" are required.` });
+  }
+  // then errors if parameters are not numbers
+  else if (Number.isNaN(a) || Number.isNaN(b)) {
+    res.status(400).json({ error: `Parameters "a" and "b" must be valid numbers.` });
+  } else {
+    res.status(200).json({ result: divide(a, b) });
+  }
 });
 
 // Remainder
@@ -112,10 +152,10 @@ app.get('/booleans/cat/starts-with/:character', (req, res) => {
   res.status(200).send({ result: startsWith(req.params.character) });
 });
 
-// ARRAYS - THIS IS RIGHT, ARRAYS.JS SOLUTION IS WRONG
+// ARRAYS
 
 app.post('/arrays/element-at-index/:index', (req, res) => {
-  res.status(200).send({ result: getNthElement(req.body.array) });
+  res.json({ result: getNthElement(req.params.index, req.body.array) });
 });
 
 // returns the stringified array
@@ -127,7 +167,7 @@ app.post('/arrays/to-string', (req, res) => {
 // returns an array with value appended
 
 app.post('/arrays/append', (req, res) => {
-  res.status(200).send({ result: addToArray(req.body.value) });
+  res.status(200).send({ result: addToArray(req.body.value, req.body.array) });
 });
 
 // starts with vowel
@@ -135,5 +175,13 @@ app.post('/arrays/append', (req, res) => {
 app.post('/arrays/starts-with-vowel', (req, res) => {
   res.status(200).send({ result: elementsStartingWithAVowel(req.body.array) });
 });
+
+// returns an array with the first element removed
+
+app.post('/arrays/remove-element', (req, res) => {
+  res.status(200).send({ result: (req.params.index, req.body.array) });
+});
+
+// app.post('/arrays/remove-element', (req, res) => {});
 
 module.exports = app;

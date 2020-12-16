@@ -50,7 +50,7 @@ describe('GET /lower/{string}', () => {
 });
 
 describe('GET /first-characters/{string}', () => {
-  xit('returns the first character of the string when there is no query string', done => {
+  it('returns the first character of the string when there is no query string', done => {
     request(app)
       .get('/strings/first-characters/hello')
       .then(res => {
@@ -60,7 +60,7 @@ describe('GET /first-characters/{string}', () => {
       });
   });
 
-  xit('returns the first n character of the string when passed a query parameter', done => {
+  it('returns the first n character of the string when passed a query parameter', done => {
     request(app)
       .get('/strings/first-characters/sd32fg45')
       .query({ length: 4 })
