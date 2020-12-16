@@ -1,4 +1,5 @@
 const express = require('express');
+const e = require('express');
 const {
   sayHello,
   uppercase,
@@ -108,7 +109,7 @@ app.post('/numbers/divide', (req, res) => {
   }
 
   // errors if parameters are missing
-  else if (!req.body.a || !req.body.b) {
+  if (!req.body.a || !req.body.b) {
     res.status(400).json({ error: `Parameters "a" and "b" are required.` });
   }
   // then errors if parameters are not numbers
@@ -125,7 +126,28 @@ app.post('/numbers/remainder', (req, res) => {
   const a = parseInt(req.body.a, 10);
   const b = parseInt(req.body.b, 10);
 
-  res.status(200).json({ result: remainder(a, b) });
+  if (
+    // errors if dividing by 0
+    req.body.a &&
+    req.body.b === 0
+  ) {
+    res.status(400).json({ error: 'Unable to divide by 0.' });
+  }
+
+  if (req.body.a === 0 && req.body.b) {
+    res.status(200).json({ result: remainder(a, b) });
+  }
+
+  // errors if parameters are missing
+  if (!req.body.a || !req.body.b) {
+    res.status(400).json({ error: `Parameters "a" and "b" are required.` });
+  }
+  // then errors if parameters are not numbers
+  else if (Number.isNaN(a) || Number.isNaN(b)) {
+    res.status(400).json({ error: `Parameters must be valid numbers.` });
+  } else {
+    res.status(200).json({ result: remainder(a, b) });
+  }
 });
 
 // BOOLEANS
@@ -137,19 +159,30 @@ app.post('/booleans/negate', (req, res) => {
 // truthiness
 
 app.post('/booleans/truthiness', (req, res) => {
-  res.status(200).send({ result: truthiness(req.body.result) });
+  res.status(200).send({ result: truthiness(req.body.value) });
 });
 
 // is odd number
 
 app.get('/booleans/is-odd/:number', (req, res) => {
-  res.status(200).send({ result: isOdd(req.params.number) });
+  const n = parseInt(req.params.number, 10);
+
+  if (Number.isNaN(n)) {
+    res.status(400).json({ error: 'Parameter must be a number.' });
+  } else {
+    res.status(200).send({ result: isOdd(req.params.number) });
+  }
 });
 
-// returns true when the string starts with the given character
+// start-with
 
-app.get('/booleans/cat/starts-with/:character', (req, res) => {
-  res.status(200).send({ result: startsWith(req.params.character) });
+app.get('/booleans/:string/starts-with/:character', (req, res) => {
+  const { string, character } = req.params;
+
+  if (character.length > 1) {
+    res.status(400).json({ error: 'Parameter "character" must be a single character.' });
+    res.status(200).send({ result: startsWith(character, string) });
+  }
 });
 
 // ARRAYS

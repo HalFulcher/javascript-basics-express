@@ -60,7 +60,7 @@ describe('/booleans', () => {
         });
     });
 
-    xit('returns true when passed a string', done => {
+    it('returns true when passed a string', done => {
       request(app)
         .post('/booleans/truthiness')
         .send({ value: 'hello' })
@@ -71,7 +71,7 @@ describe('/booleans', () => {
         });
     });
 
-    xit('returns true when passed a number', done => {
+    it('returns true when passed a number', done => {
       request(app)
         .post('/booleans/truthiness')
         .send({ value: 9 })
@@ -104,7 +104,7 @@ describe('/booleans', () => {
         });
     });
 
-    xit('errors when the value is not numeric', done => {
+    it('errors when the value is not numeric', done => {
       request(app)
         .get('/booleans/is-odd/bicycle')
         .then(res => {
@@ -126,7 +126,7 @@ describe('/booleans', () => {
         });
     });
 
-    xit('returns false when the string does not start with the given character', done => {
+    it('returns false when the string does not start with the given character', done => {
       request(app)
         .get('/booleans/cat/starts-with/d')
         .then(res => {
@@ -136,7 +136,7 @@ describe('/booleans', () => {
         });
     });
 
-    xit('errors when the second argument is not a single character', done => {
+    it('errors when the second argument is not a single character', done => {
       request(app)
         .get('/booleans/cat/starts-with/cat')
         .then(res => {
