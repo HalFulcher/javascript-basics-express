@@ -1,5 +1,4 @@
 const express = require('express');
-const e = require('express');
 const {
   sayHello,
   uppercase,
@@ -12,8 +11,9 @@ const { negate, truthiness, isOdd, startsWith } = require('./lib/booleans');
 const {
   getNthElement,
   arrayToCSVString,
-  addToArray,
+  addToArray2,
   elementsStartingWithAVowel,
+  removeNthElement2,
 } = require('./lib/arrays');
 
 const app = express();
@@ -194,27 +194,30 @@ app.post('/arrays/element-at-index/:index', (req, res) => {
 // returns the stringified array
 
 app.post('/arrays/to-string', (req, res) => {
-  res.status(200).send({ result: arrayToCSVString(req.body.array) });
+  res.status(200).json({ result: arrayToCSVString(req.body.array) });
 });
 
 // returns an array with value appended
 
 app.post('/arrays/append', (req, res) => {
-  res.status(200).send({ result: addToArray(req.body.value, req.body.array) });
+  console.log(req.body.value, req.body.array);
+  res.status(200).json({ result: addToArray2(req.body.value, req.body.array) });
 });
 
 // starts with vowel
 
 app.post('/arrays/starts-with-vowel', (req, res) => {
-  res.status(200).send({ result: elementsStartingWithAVowel(req.body.array) });
+  res.status(200).json({ result: elementsStartingWithAVowel(req.body.array) });
 });
 
-// returns an array with the first element removed
+// remove element at index
 
 app.post('/arrays/remove-element', (req, res) => {
-  res.status(200).send({ result: (req.params.index, req.body.array) });
-});
+  if (req.query.index === 0) {
+    res.status(200).json({ result: removeNthElement2(req.query.index, req.body.array) });
+  }
 
-// app.post('/arrays/remove-element', (req, res) => {});
+  res.status(200).json({ result: removeNthElement2(req.query.index, req.body.array) });
+});
 
 module.exports = app;

@@ -1,5 +1,3 @@
-// THIS FIRST ONE IS WRONG
-
 const getNthElement = (index, array) => {
   return array[index % array.length];
 };
@@ -13,7 +11,7 @@ const csvStringToArray = string => {
 };
 
 const addToArray = (element, array) => {
-  array.push(element);
+  return array.push(element);
 };
 
 const addToArray2 = (element, array) => {
